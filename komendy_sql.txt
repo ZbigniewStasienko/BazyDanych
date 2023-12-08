@@ -1,0 +1,58 @@
+Dodanie zawodnika:
+INSERT INTO players (first_name, last_name, position, club_id) VALUES ("Clint", "Capela", "C", 1);
+INSERT INTO stats (points, assists, rebounds) VALUES (12.3, 3.2, 8.6);
+
+Usuniecie zawodnika:
+DELETE FROM stats WHERE player_id = 31;
+DELETE FROM players WHERE player_id = 31;
+
+Zaktualizowanie danych:
+UPDATE stats SET points = 12.5, assists = 6.5, rebounds = 4.6 
+WHERE player_id = 14;
+
+Widok ze wszystkimi zawodnikami (posortowany wzgledem zbiorek):
+CREATE VIEW rebounds_view AS
+SELECT p.first_name || ' ' || p.last_name AS 'Player', c.city_name || ' ' || c.club_name AS 'Club', s.points AS 'Points', s.assists AS 'Assists', s.rebounds AS 'Rebounds'
+FROM players AS p
+INNER JOIN stats AS s
+ON p.player_id = s.player_id
+INNER JOIN clubs AS c
+ON c.club_id = p.club_id
+ORDER BY s.rebounds DESC;
+
+Widok ze wszystkimi zawodnikami (posortowany wzgledem asyst):
+CREATE VIEW assist_view AS
+SELECT p.first_name || ' ' || p.last_name AS 'Player', c.city_name || ' ' || c.club_name AS 'Club', s.points AS 'Points', s.assists AS 'Assists', s.rebounds AS 'Rebounds'
+FROM players AS p
+INNER JOIN stats AS s
+ON p.player_id = s.player_id
+INNER JOIN clubs AS c
+ON c.club_id = p.club_id
+ORDER BY s.assists DESC;
+
+Widok ze wszystkimi zawodnikami (posortowany wzgledem punktow):
+CREATE VIEW points_view AS
+SELECT p.first_name || ' ' || p.last_name AS 'Player', c.city_name || ' ' || c.club_name AS 'Club', s.points AS 'Points', s.assists AS 'Assists', s.rebounds AS 'Rebounds'
+FROM players AS p
+INNER JOIN stats AS s
+ON p.player_id = s.player_id
+INNER JOIN clubs AS c
+ON c.club_id = p.club_id
+ORDER BY s.points DESC;
+
+Wyświetlenie widoku:
+SELECT * FROM view_name;
+
+Wyświetlana lista wszystkich klubów
+SELECT city_name AS 'City', club_name AS 'Club', division AS 'Division'
+FROM clubs;
+
+Zawodnicy z klubu:
+SELECT p.first_name || ' ' || p.last_name AS 'Player',p.position AS 'Position', s.points AS 'Points', s.assists AS 'Assists', s.rebounds AS 'Rebounds'
+FROM players AS p
+INNER JOIN stats AS s
+ON p.player_id = s.player_id
+INNER JOIN clubs AS c
+ON c.club_id = p.club_id
+WHERE c.club_name = 'Bulls'
+ORDER BY p.position;

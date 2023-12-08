@@ -3,6 +3,15 @@ package model;
 public class Player {
     private String firstName;
     private String LastName;
+    private int id;
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     private int club;
     private String pts;
     private String ast;

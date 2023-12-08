@@ -6,7 +6,8 @@ import java.util.List;
 
 public class Datasource {
     public static final String DB_NAME = "database.db";
-    public static final String CONNECTION_STRING = "jdbc:sqlite:C:\\Users\\zbysz\\Documents\\Studia\\Semestr V\\BD\\repo\\BazyDanych\\" + DB_NAME;
+    // public static final String CONNECTION_STRING = "jdbc:sqlite:C:\\Users\\zbysz\\Documents\\Studia\\Semestr V\\BD\\repo\\BazyDanych\\" + DB_NAME;
+    public static final String CONNECTION_STRING = "jdbc:sqlite:C:..\\BazyDanych\\" + DB_NAME;
     public static final String VIEW = "SELECT * FROM %s;";
     public static final String ADD_PLAYER = "INSERT INTO players (first_name, last_name, position, club_id) VALUES ('%s', '%s', '%s', %d);";
     public static final String ADD_STATS = "INSERT INTO stats (points, assists, rebounds) VALUES (%s, %s, %s);";

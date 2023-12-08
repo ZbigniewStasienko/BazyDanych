@@ -9,6 +9,7 @@ import javax.xml.crypto.Data;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.util.List;
 
 public class PlayerReader extends JFrame {
@@ -67,6 +68,8 @@ public class PlayerReader extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 onSubmit();
+                setVisible(false);
+                dispose();
             }
         });
 

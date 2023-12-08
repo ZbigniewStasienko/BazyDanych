@@ -1,9 +1,11 @@
 package gui;
 
 import model.Club;
+import model.Datasource;
 import model.Player;
 
 import javax.swing.*;
+import javax.xml.crypto.Data;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,14 +20,13 @@ public class PlayerReader extends JFrame {
     private JTextField double2Field;
     private JTextField double3Field;
     private List<Club> clubList;
-    public static Player player = new Player();
-
-    public PlayerReader(List<Club> clubList) {
+    private Datasource datasource;
+    public PlayerReader(List<Club> clubList, Datasource datasource) {
         setTitle("Player Reader");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(400, 250);
         this.clubList = clubList;
-
+        this.datasource = datasource;
         initComponents();
     }
 
@@ -92,13 +93,8 @@ public class PlayerReader extends JFrame {
 
     private void onSubmit() {
         try {
-            player.setPos(positionComboBox.getSelectedItem().toString());
-            player.setFirstName(string1Field.getText());
-            player.setLastName(string2Field.getText());
-            player.setPts(double1Field.getText());
-            player.setAst(double2Field.getText());
-            player.setReb(double3Field.getText());
-            player.setClub(clubComboBox.getSelectedIndex() + 1);
+            datasource.addPlayer(string1Field.getText(), string2Field.getText(), positionComboBox.getSelectedItem().toString(), clubComboBox.getSelectedIndex() + 1);
+            datasource.addStats(double1Field.getText(), double2Field.getText(), double3Field.getText());
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Please enter valid numeric values.", "Error", JOptionPane.ERROR_MESSAGE);
         }

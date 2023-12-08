@@ -51,9 +51,6 @@ public class MainApplication extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 openPlayerReaderWindow();
-                System.out.println(PlayerReader.player.getFirstName());
-                datasource.addPlayer(PlayerReader.player.getFirstName(), PlayerReader.player.getLastName(), PlayerReader.player.getPos(), PlayerReader.player.getClub());
-                datasource.addStats(PlayerReader.player.getPts(), PlayerReader.player.getAst(), PlayerReader.player.getReb());
             }
         });
 
@@ -114,7 +111,7 @@ public class MainApplication extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                PlayerReader playerReader = new PlayerReader(datasource.clubsList());
+                PlayerReader playerReader = new PlayerReader(datasource.clubsList(), datasource);
                 playerReader.setVisible(true);
             }
         });

@@ -1,9 +1,13 @@
 package gui;
 
+import model.Club;
+import model.Player;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class PlayerReader extends JFrame {
     private JComboBox<String> clubComboBox;
@@ -13,11 +17,14 @@ public class PlayerReader extends JFrame {
     private JTextField double1Field;
     private JTextField double2Field;
     private JTextField double3Field;
+    private List<Club> clubList;
+    public static Player player = new Player();
 
-    public PlayerReader() {
+    public PlayerReader(List<Club> clubList) {
         setTitle("Player Reader");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(400, 250);
+        this.clubList = clubList;
 
         initComponents();
     }
@@ -33,11 +40,16 @@ public class PlayerReader extends JFrame {
         string2Field = new JTextField();
 
         JLabel clubLabel = new JLabel("Select club:");
-        String[] clubs = {"chi", "det", "cle"};
+        String[] clubs = new String[clubList.size()];
+        int i = 0;
+        for(Club club : clubList){
+            clubs[i] = club.getCityName() + " " + club.getClubName();
+            i++;
+        }
         clubComboBox = new JComboBox<>(clubs);
 
         JLabel positionLabel = new JLabel("Select position:");
-        String[] positions = {"1", "2", "3", "4", "5"};
+        String[] positions = {"PG", "SG", "SF", "PF", "C"};
         positionComboBox = new JComboBox<>(positions);
 
         JLabel double1Label = new JLabel("Player points:");
@@ -80,25 +92,15 @@ public class PlayerReader extends JFrame {
 
     private void onSubmit() {
         try {
-            int intValue = Integer.parseInt(positionComboBox.getSelectedItem().toString());
-            String string1Value = string1Field.getText();
-            String string2Value = string2Field.getText();
-            double double1Value = Double.parseDouble(double1Field.getText());
-            double double2Value = Double.parseDouble(double2Field.getText());
-            double double3Value = Double.parseDouble(double3Field.getText());
-            String a = clubComboBox.getSelectedItem().toString();
-
-            System.out.println("Pos: " + intValue);
-            System.out.println("String 1: " + string1Value);
-            System.out.println("String 2: " + string2Value);
-            System.out.println("Double 1: " + double1Value);
-            System.out.println("Double 2: " + double2Value);
-            System.out.println("Double 3: " + double3Value);
-            System.out.println("EE: " + a);
-
+            player.setPos(positionComboBox.getSelectedItem().toString());
+            player.setFirstName(string1Field.getText());
+            player.setLastName(string2Field.getText());
+            player.setPts(double1Field.getText());
+            player.setAst(double2Field.getText());
+            player.setReb(double3Field.getText());
+            player.setClub(clubComboBox.getSelectedIndex() + 1);
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Please enter valid numeric values.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
 }

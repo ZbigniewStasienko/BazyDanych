@@ -1,6 +1,7 @@
 package gui;
 
 import model.Datasource;
+import model.Player;
 import model.View;
 
 import javax.swing.*;
@@ -32,11 +33,27 @@ public class MainApplication extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
-        JButton openPlayerReaderButton = new JButton("Open PlayerReader");
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menuViews = new JMenu("View");
+        JMenuItem menuPoints = new JMenuItem("Sort by points");
+        JMenuItem menuRebounds = new JMenuItem("Sort by rebounds");
+        JMenuItem menuAssists = new JMenuItem("Sort by assists");
+
+        setJMenuBar(menuBar);
+        menuBar.add(menuViews);
+
+        menuViews.add(menuPoints);
+        menuViews.add(menuAssists);
+        menuViews.add(menuRebounds);
+
+        JButton openPlayerReaderButton = new JButton("Add Player");
         openPlayerReaderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 openPlayerReaderWindow();
+                System.out.println(PlayerReader.player.getFirstName());
+                datasource.addPlayer(PlayerReader.player.getFirstName(), PlayerReader.player.getLastName(), PlayerReader.player.getPos(), PlayerReader.player.getClub());
+                datasource.addStats(PlayerReader.player.getPts(), PlayerReader.player.getAst(), PlayerReader.player.getReb());
             }
         });
 
@@ -48,11 +65,24 @@ public class MainApplication extends JFrame {
             }
         });
 
-        JButton createMonthsTableButton = new JButton("Create Months Table");
-        createMonthsTableButton.addActionListener(new ActionListener() {
+        menuPoints.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 createMonthsTable("points_view");
+            }
+        });
+
+        menuAssists.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createMonthsTable("assist_view");
+            }
+        });
+
+        menuRebounds.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createMonthsTable("rebounds_view");
             }
         });
 
@@ -67,7 +97,6 @@ public class MainApplication extends JFrame {
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(openPlayerReaderButton);
         buttonPanel.add(createTableButton);
-        buttonPanel.add(createMonthsTableButton);
         buttonPanel.add(closeButton);
 
         panel.add(buttonPanel, BorderLayout.NORTH);
@@ -85,7 +114,7 @@ public class MainApplication extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                PlayerReader playerReader = new PlayerReader();
+                PlayerReader playerReader = new PlayerReader(datasource.clubsList());
                 playerReader.setVisible(true);
             }
         });

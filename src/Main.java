@@ -23,7 +23,7 @@ public class Main {
             System.out.println("Aby usunac zawodnika wcisnij '3'");
             System.out.println("Aby zaktualizowac dane zawodnika wcisnij '4'");
             System.out.println("Aby wyswietlic informacje o klubach wcisnij '5'");
-            System.out.println("Ayb wyświetlić dane o zawonikawch klubu '6'");
+            System.out.println("Ayb wyświetlić dane o zawodnikach klubu '6'");
             System.out.println("Aby zakonczyc dzialanie wcisnij '7'");
             System.out.print("Twoj wybor: ");
             option = scanner.nextInt();

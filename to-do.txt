@@ -4,3 +4,4 @@
 -wyswietlic liste klubow
 -klikniecie na liste klubow pokazuje zawdonikow klubu
 -wylaczyc okienko po wybraniu "submit"
+-dodac pole playerId w obiektach Javy

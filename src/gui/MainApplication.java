@@ -2,6 +2,7 @@ package gui;
 
 import model.Club;
 import model.Datasource;
+import model.Player;
 import model.View;
 
 import javax.imageio.ImageIO;
@@ -17,6 +18,7 @@ public class MainApplication extends JFrame implements ActionListener {
     private JTable table;
     private Datasource datasource;
     private String refresh;
+    private int clubsViewed = 0;
     JButton deleteButton = new JButton("Delete");
     JMenuBar menuBar = new JMenuBar();
     JMenu menuViews = new JMenu("View");
@@ -25,7 +27,7 @@ public class MainApplication extends JFrame implements ActionListener {
     JMenuItem menuAssists = new JMenuItem("Players sorted by assists");
     JMenuItem menuClubsList = new JMenuItem("List of Clubs");
     JButton openPlayerReaderButton = new JButton("Add Player");
-    JButton createTableButton = new JButton("Create Example Table");
+    JButton showRoster = new JButton("Show Roster");
     JButton refreshButton = new JButton();
     JButton closeButton = new JButton("Close");
 
@@ -68,7 +70,7 @@ public class MainApplication extends JFrame implements ActionListener {
         deleteButton.addActionListener(this);
         refreshButton.addActionListener(this);
         openPlayerReaderButton.addActionListener(this);
-        createTableButton.addActionListener(this);
+        showRoster.addActionListener(this);
         menuPoints.addActionListener(this);
         menuAssists.addActionListener(this);
         menuRebounds.addActionListener(this);
@@ -79,7 +81,7 @@ public class MainApplication extends JFrame implements ActionListener {
         buttonPanel.add(refreshButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(openPlayerReaderButton);
-        buttonPanel.add(createTableButton);
+        buttonPanel.add(showRoster);
         buttonPanel.add(closeButton);
 
         panel.add(buttonPanel, BorderLayout.NORTH);
@@ -96,6 +98,9 @@ public class MainApplication extends JFrame implements ActionListener {
         panel.add(scrollPane, BorderLayout.CENTER);
 
         add(panel);
+
+        viewPlayers("points_view");
+        refresh = "points_view";
     }
 
     @Override
@@ -103,6 +108,9 @@ public class MainApplication extends JFrame implements ActionListener {
         Object source = event.getSource();
         try {
             if (source == deleteButton) {
+                if(clubsViewed > 0){
+                    return;
+                }
                 int index = table.getSelectedRow();
                 if (index<0) {
                     JOptionPane.showMessageDialog(this, "No player is selected", "Error", JOptionPane.ERROR_MESSAGE);
@@ -115,15 +123,18 @@ public class MainApplication extends JFrame implements ActionListener {
             }
 
             if (source == refreshButton){
+                if (clubsViewed > 0){
+                    return;
+                }
                 if(refresh != null){
                     if (refresh == "points_view"){
-                        createMonthsTable("points_view");
+                        viewPlayers("points_view");
                     }
                     else if(refresh == "assist_view"){
-                        createMonthsTable("assist_view");
+                        viewPlayers("assist_view");
                     }
                     else if(refresh == "rebounds_view"){
-                        createMonthsTable("rebounds_view");
+                        viewPlayers("rebounds_view");
                     }
                 }
             }
@@ -132,27 +143,43 @@ public class MainApplication extends JFrame implements ActionListener {
                 openPlayerReaderWindow();
             }
 
-            if (source == createTableButton) {
-                createExampleTable();
+            if (source == showRoster) {
+                if(clubsViewed == 1){
+                    int index = table.getSelectedRow();
+                    if (index<0) {
+                        JOptionPane.showMessageDialog(this, "No team is selected", "Error", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        List <Club> clubs = datasource.clubsList();
+                        Club clubToShow = clubs.get(index);
+                        viewPlayersFromClub(clubToShow.getClubName());
+                        clubsViewed = 2;
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "View club first", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
 
             if (source == menuPoints) {
-                createMonthsTable("points_view");
+                viewPlayers("points_view");
                 refresh = "points_view";
+                clubsViewed = 0;
             }
 
             if (source == menuAssists) {
-                createMonthsTable("assist_view");
+                viewPlayers("assist_view");
                 refresh = "assist_view";
+                clubsViewed = 0;
             }
 
             if (source == menuRebounds) {
-                createMonthsTable("rebounds_view");
+                viewPlayers("rebounds_view");
                 refresh = "rebounds_view";
+                clubsViewed = 0;
             }
 
             if (source == menuClubsList) {
                 createClubsTable();
+                clubsViewed = 1;
             }
 
             if (source == closeButton) {
@@ -174,18 +201,15 @@ public class MainApplication extends JFrame implements ActionListener {
         });
     }
 
-    private void createExampleTable() {
-        String[] columnNames = {"Day"};
-        String[][] data = {
-                {"Monday"},
-                {"Tuesday"},
-                {"Wednesday"},
-                {"Thursday"},
-                {"Friday"},
-                {"Saturday"},
-                {"Sunday"}
-        };
-
+    private void viewPlayersFromClub(String clubName) {
+        List<Player> players = datasource.clubPlayerList(clubName);
+        Object[][] data = new Object[players.size()][5];
+        int i = 0;
+        String[] columnNames = {"Player Name", "Position", "Points", "Assists", "Rebounds"};
+        for(Player player : players) {
+            data[i] =  new Object[]{player.getName(), player.getPos(), player.getPts(), player.getAst(), player.getReb()};
+            i++;
+        }
         tableModel.setDataVector(data, columnNames);
     }
 
@@ -202,7 +226,7 @@ public class MainApplication extends JFrame implements ActionListener {
         tableModel.setDataVector(data, columnNames);
     }
 
-    private void createMonthsTable(String viewName) {
+    private void viewPlayers(String viewName) {
         List<View> views = datasource.queryView(viewName);
         Object[][] data = new Object[views.size()][6];
         int i = 0;
@@ -213,8 +237,6 @@ public class MainApplication extends JFrame implements ActionListener {
         }
         tableModel.setDataVector(data, columnNames);
     }
-
-    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {

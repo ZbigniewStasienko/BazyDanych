@@ -22,11 +22,11 @@ public class PlayerReader extends JFrame {
     private JTextField double3Field;
     private List<Club> clubList;
     private Datasource datasource;
-    public PlayerReader(List<Club> clubList, Datasource datasource) {
+    public PlayerReader(Datasource datasource) {
         setTitle("Player Reader");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(400, 250);
-        this.clubList = clubList;
+        this.clubList = datasource.clubsList();
         this.datasource = datasource;
         initComponents();
     }

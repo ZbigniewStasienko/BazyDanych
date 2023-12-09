@@ -1,5 +1,5 @@
 -przycisk refresh #Zrobione
--usuwanie kliknietego zawodnika
+-usuwanie kliknietego zawodnika #Done
 -edytowanie kliknietego zawodnika
 -wyswietlic liste klubow
 -klikniecie na liste klubow pokazuje zawdonikow klubu

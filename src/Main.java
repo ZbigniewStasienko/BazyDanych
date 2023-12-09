@@ -1,5 +1,6 @@
 import model.Club;
 import model.Datasource;
+import model.Player;
 import model.View;
 
 import java.util.List;
@@ -103,14 +104,14 @@ public class Main {
         }
     }
     public static void printPlayers(Datasource datasource , String clubName ) {
-        List<View> views = datasource.clubPlayerList(clubName);
+        List<Player> views = datasource.clubPlayerList(clubName);
         if(views == null) {
             System.out.println("No players");
             return;
         }
         System.out.println("Player Name | Position | Points | Assists | Rebounds");
-        for(View view : views) {
-            System.out.println(view.getPlayerName() + "| " + view.getPos() + "| " + view.getPts() + "| " + view.getAst() + "| " + view.getReb());
+        for(Player view : views) {
+            System.out.println(view.getName() + "| " + view.getPos() + "| " + view.getPts() + "| " + view.getAst() + "| " + view.getReb());
         }
     }
 }

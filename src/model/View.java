@@ -7,7 +7,7 @@ public class View {
     private double ast;
     private double reb;
     private String pos;
-
+    private int id;
 
     public View() {
         this.playerName = null;
@@ -16,6 +16,14 @@ public class View {
         this.ast = -1;
         this.reb = -1;
         this.pos = null;
+        this.id = -1;
+    }
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
     public String getPos() {
         return pos;

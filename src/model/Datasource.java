@@ -56,11 +56,12 @@ public class Datasource {
             List<View> viewElements = new ArrayList<>();
             while(results.next()) {
                 View view = new View();
-                view.setPlayerName(results.getString(1));
-                view.setClub(results.getString(2));
-                view.setPts(results.getDouble(3));
-                view.setAst(results.getDouble(4));
-                view.setReb(results.getDouble(5));
+                view.setId(results.getInt(1));
+                view.setPlayerName(results.getString(2));
+                view.setClub(results.getString(3));
+                view.setPts(results.getDouble(4));
+                view.setAst(results.getDouble(5));
+                view.setReb(results.getDouble(6));
                 viewElements.add(view);
             }
             return viewElements;
@@ -132,22 +133,22 @@ public class Datasource {
             System.out.println("Query failed: " + e.getMessage());
         }
     }
-    public List<View> clubPlayerList(String clubName) {
+    public List<Player> clubPlayerList(String clubName) {
         String command = String.format(ClUB_PLAYERS, clubName);
         try(Statement statement = conn.createStatement();
             ResultSet results = statement.executeQuery(command)) {
 
-            List<View> clubs = new ArrayList<>();
+            List<Player> players = new ArrayList<>();
             while(results.next()) {
-                View view = new View();
-                view.setPlayerName(results.getString(1));
-                view.setPos(results.getString(2));
-                view.setPts(results.getDouble(3));
-                view.setAst(results.getDouble(4));
-                view.setReb(results.getDouble(5));
-                clubs.add(view);
+                Player player = new Player();
+                player.setName(results.getString(1));
+                player.setPos(results.getString(2));
+                player.setPts(results.getDouble(3));
+                player.setAst(results.getDouble(4));
+                player.setReb(results.getDouble(5));
+                players.add(player);
             }
-            return clubs;
+            return players;
 
         } catch(SQLException e) {
             System.out.println("Query failed: " + e.getMessage());

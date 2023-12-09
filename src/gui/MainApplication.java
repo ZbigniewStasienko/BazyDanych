@@ -2,7 +2,6 @@ package gui;
 
 import model.Club;
 import model.Datasource;
-import model.Player;
 import model.View;
 
 import javax.imageio.ImageIO;
@@ -13,11 +12,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-public class MainApplication extends JFrame {
+public class MainApplication extends JFrame implements ActionListener {
     private DefaultTableModel tableModel;
     private JTable table;
     private Datasource datasource;
     private String refresh;
+    JButton deleteButton = new JButton("Delete");
+    JMenuBar menuBar = new JMenuBar();
+    JMenu menuViews = new JMenu("View");
+    JMenuItem menuPoints = new JMenuItem("Players sorted by points");
+    JMenuItem menuRebounds = new JMenuItem("Players sorted by rebounds");
+    JMenuItem menuAssists = new JMenuItem("Players sorted by assists");
+    JMenuItem menuClubsList = new JMenuItem("List of Clubs");
+    JButton openPlayerReaderButton = new JButton("Add Player");
+    JButton createTableButton = new JButton("Create Example Table");
+    JButton refreshButton = new JButton();
+    JButton closeButton = new JButton("Close");
+
 
     public MainApplication() {
 
@@ -37,25 +48,14 @@ public class MainApplication extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
-        JMenuBar menuBar = new JMenuBar();
-        JMenu menuViews = new JMenu("View");
-        JMenuItem menuClubs = new JMenuItem("Clubs");
-        // JMenuItem menuClubsList = new JMenuItem("List of Clubs"); 
-        JMenuItem menuPoints = new JMenuItem("Sort by points");
-        JMenuItem menuRebounds = new JMenuItem("Sort by rebounds");
-        JMenuItem menuAssists = new JMenuItem("Sort by assists");
-    
-
         setJMenuBar(menuBar);
         menuBar.add(menuViews);
-        menuBar.add(menuClubs);
 
         menuViews.add(menuPoints);
         menuViews.add(menuAssists);
         menuViews.add(menuRebounds);
-        // menuClubs.add(menuClubsList);
+        menuViews.add(menuClubsList);
 
-        JButton refreshButton = new JButton();
         try {
             Image img = ImageIO.read(getClass().getResource("../image/refresh.png"));
             Image newimage = img.getScaledInstance(24, 22, DO_NOTHING_ON_CLOSE);
@@ -65,21 +65,56 @@ public class MainApplication extends JFrame {
             System.out.println(e);
         }
 
-        JButton deleteButton = new JButton("Delete");
-        deleteButton.addActionListener(new ActionListener() {
+        deleteButton.addActionListener(this);
+        refreshButton.addActionListener(this);
+        openPlayerReaderButton.addActionListener(this);
+        createTableButton.addActionListener(this);
+        menuPoints.addActionListener(this);
+        menuAssists.addActionListener(this);
+        menuRebounds.addActionListener(this);
+        menuClubsList.addActionListener(this);
+        closeButton.addActionListener(this);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(refreshButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(openPlayerReaderButton);
+        buttonPanel.add(createTableButton);
+        buttonPanel.add(closeButton);
+
+        panel.add(buttonPanel, BorderLayout.NORTH);
+
+        tableModel = new DefaultTableModel();
+        table = new JTable(tableModel){
             @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("usuniecie zawodnika");
+            public boolean isCellEditable(int rowIndex, int colIndex) {
+                return false;
             }
-            
-        });
+        };
+        JScrollPane scrollPane = new JScrollPane(table);
 
+        panel.add(scrollPane, BorderLayout.CENTER);
 
+        add(panel);
+    }
 
-        refreshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("test refresh");
+    @Override
+    public void actionPerformed(ActionEvent event) {
+        Object source = event.getSource();
+        try {
+            if (source == deleteButton) {
+                int index = table.getSelectedRow();
+                if (index<0) {
+                    JOptionPane.showMessageDialog(this, "No player is selected", "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    List <View> currentView = datasource.queryView(refresh);
+                    View playerToDel = currentView.get(index);
+                    datasource.deleteStats(playerToDel.getId());
+                    datasource.deletePlayer(playerToDel.getId());
+                }
+            }
+
+            if (source == refreshButton){
                 if(refresh != null){
                     if (refresh == "points_view"){
                         createMonthsTable("points_view");
@@ -91,107 +126,49 @@ public class MainApplication extends JFrame {
                         createMonthsTable("rebounds_view");
                     }
                 }
-                System.out.println("refresh test");
-                
             }
-        });
 
-        JButton openPlayerReaderButton = new JButton("Add Player");
-        openPlayerReaderButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            if (source == openPlayerReaderButton) {
                 openPlayerReaderWindow();
             }
-        });
 
-        JButton createTableButton = new JButton("Create Example Table");
-        createTableButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            if (source == createTableButton) {
                 createExampleTable();
             }
-        });
 
-        menuPoints.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            if (source == menuPoints) {
                 createMonthsTable("points_view");
                 refresh = "points_view";
             }
-        });
 
-        menuAssists.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            if (source == menuAssists) {
                 createMonthsTable("assist_view");
                 refresh = "assist_view";
             }
-        });
 
-        menuRebounds.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            if (source == menuRebounds) {
                 createMonthsTable("rebounds_view");
                 refresh = "rebounds_view";
             }
-        });
 
-        menuClubs.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            if (source == menuClubsList) {
                 createClubsTable();
             }
-            
-        });
 
-        JButton closeButton = new JButton("Close");
-        closeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            if (source == closeButton) {
                 System.exit(0);
             }
-        });
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(refreshButton);
-        buttonPanel.add(deleteButton);
-        buttonPanel.add(openPlayerReaderButton);
-        buttonPanel.add(createTableButton);
-        buttonPanel.add(closeButton);
-        
-        
-        
-        panel.add(buttonPanel, BorderLayout.NORTH);
-
-
-        tableModel = new DefaultTableModel();
-        table = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(table);
-
-        panel.add(scrollPane, BorderLayout.CENTER);
-
-        add(panel);
-    }
-
-    private void MouseCheck(Object[][] data){
-        table.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt){
-                int row = table.rowAtPoint(evt.getPoint());
-                int col = table.columnAtPoint(evt.getPoint());
-                System.out.println(row);
-                System.out.println(col);
-                System.out.println(data[row][col]);
-            }
-        });
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void openPlayerReaderWindow() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                PlayerReader playerReader = new PlayerReader(datasource.clubsList(), datasource);
+                PlayerReader playerReader = new PlayerReader(datasource);
                 playerReader.setVisible(true);
             }
         });
@@ -223,20 +200,18 @@ public class MainApplication extends JFrame {
             i++;
         }
         tableModel.setDataVector(data, columnNames);
-        
     }
 
     private void createMonthsTable(String viewName) {
         List<View> views = datasource.queryView(viewName);
-        Object[][] data = new Object[views.size()][5];
+        Object[][] data = new Object[views.size()][6];
         int i = 0;
-        String[] columnNames = {"Player Name", "Club Name", "Points", "Assists", "Rebounds"};
+        String[] columnNames = {"ID", "Player Name", "Club Name", "Points", "Assists", "Rebounds"};
         for(View view : views) {
-            data[i] =  new Object[]{view.getPlayerName(), view.getClub(), view.getPts(), view.getAst(), view.getReb()};
+            data[i] =  new Object[]{view.getId(), view.getPlayerName(), view.getClub(), view.getPts(), view.getAst(), view.getReb()};
             i++;
         }
         tableModel.setDataVector(data, columnNames);
-        this.MouseCheck(data);
     }
 
     

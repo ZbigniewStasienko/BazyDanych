@@ -1,9 +1,6 @@
 package gui;
 
-import model.Club;
-import model.Datasource;
-import model.Player;
-import model.View;
+import model.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -27,6 +24,7 @@ public class MainApplication extends JFrame implements ActionListener {
     JMenuItem menuAssists = new JMenuItem("Players sorted by assists");
     JMenuItem menuClubsList = new JMenuItem("List of Clubs");
     JButton openPlayerReaderButton = new JButton("Add Player");
+    JButton openPlayerUpdateButton = new JButton("Update Player");
     JButton showRoster = new JButton("Show Roster");
     JButton refreshButton = new JButton();
     JButton closeButton = new JButton("Close");
@@ -35,7 +33,7 @@ public class MainApplication extends JFrame implements ActionListener {
     public MainApplication() {
 
         datasource = new Datasource();
-        if(!datasource.open()) {
+        if (!datasource.open()) {
             JOptionPane.showMessageDialog(this, "Could not open connection with database", "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
@@ -62,7 +60,7 @@ public class MainApplication extends JFrame implements ActionListener {
             Image img = ImageIO.read(getClass().getResource("../image/refresh.png"));
             Image newimage = img.getScaledInstance(24, 22, DO_NOTHING_ON_CLOSE);
             refreshButton.setIcon(new ImageIcon(newimage));
-            
+
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -70,6 +68,7 @@ public class MainApplication extends JFrame implements ActionListener {
         deleteButton.addActionListener(this);
         refreshButton.addActionListener(this);
         openPlayerReaderButton.addActionListener(this);
+        openPlayerUpdateButton.addActionListener(this);
         showRoster.addActionListener(this);
         menuPoints.addActionListener(this);
         menuAssists.addActionListener(this);
@@ -81,13 +80,14 @@ public class MainApplication extends JFrame implements ActionListener {
         buttonPanel.add(refreshButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(openPlayerReaderButton);
+        buttonPanel.add(openPlayerUpdateButton);
         buttonPanel.add(showRoster);
         buttonPanel.add(closeButton);
 
         panel.add(buttonPanel, BorderLayout.NORTH);
 
         tableModel = new DefaultTableModel();
-        table = new JTable(tableModel){
+        table = new JTable(tableModel) {
             @Override
             public boolean isCellEditable(int rowIndex, int colIndex) {
                 return false;
@@ -108,48 +108,61 @@ public class MainApplication extends JFrame implements ActionListener {
         Object source = event.getSource();
         try {
             if (source == deleteButton) {
-                if(clubsViewed > 0){
+                if (clubsViewed > 0) {
                     return;
                 }
                 int index = table.getSelectedRow();
-                if (index<0) {
+                if (index < 0) {
                     JOptionPane.showMessageDialog(this, "No player is selected", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    List <View> currentView = datasource.queryView(refresh);
+                    List<View> currentView = datasource.queryView(refresh);
                     View playerToDel = currentView.get(index);
                     datasource.deleteStats(playerToDel.getId());
                     datasource.deletePlayer(playerToDel.getId());
                 }
             }
 
-            if (source == refreshButton){
-                if (clubsViewed > 0){
+            if (source == refreshButton) {
+                if (clubsViewed > 0) {
                     return;
                 }
-                if(refresh != null){
-                    if (refresh == "points_view"){
+                if (refresh != null) {
+                    if (refresh == "points_view") {
                         viewPlayers("points_view");
-                    }
-                    else if(refresh == "assist_view"){
+                    } else if (refresh == "assist_view") {
                         viewPlayers("assist_view");
-                    }
-                    else if(refresh == "rebounds_view"){
+                    } else if (refresh == "rebounds_view") {
                         viewPlayers("rebounds_view");
                     }
                 }
             }
 
             if (source == openPlayerReaderButton) {
-                openPlayerReaderWindow();
+                openPlayerReaderWindow(null, -1);
+            }
+
+            if (source == openPlayerUpdateButton) {
+                if (clubsViewed > 0) {
+                    return;
+                }
+                int index = table.getSelectedRow();
+                if (index < 0) {
+                    JOptionPane.showMessageDialog(this, "No player is selected", "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    List<View> currentView = datasource.queryView(refresh);
+                    View playerToUpdate = currentView.get(index);
+                    PlayerToUpdate player = datasource.playerUpdate(playerToUpdate.getId());
+                    openPlayerReaderWindow(player, playerToUpdate.getId());
+                }
             }
 
             if (source == showRoster) {
-                if(clubsViewed == 1){
+                if (clubsViewed == 1) {
                     int index = table.getSelectedRow();
-                    if (index<0) {
+                    if (index < 0) {
                         JOptionPane.showMessageDialog(this, "No team is selected", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
-                        List <Club> clubs = datasource.clubsList();
+                        List<Club> clubs = datasource.clubsList();
                         Club clubToShow = clubs.get(index);
                         viewPlayersFromClub(clubToShow.getClubName());
                         clubsViewed = 2;
@@ -191,11 +204,11 @@ public class MainApplication extends JFrame implements ActionListener {
         }
     }
 
-    private void openPlayerReaderWindow() {
+    private void openPlayerReaderWindow(PlayerToUpdate player, int idPlayer) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                PlayerReader playerReader = new PlayerReader(datasource);
+                PlayerReader playerReader = new PlayerReader(datasource, player, idPlayer);
                 playerReader.setVisible(true);
             }
         });
@@ -206,21 +219,21 @@ public class MainApplication extends JFrame implements ActionListener {
         Object[][] data = new Object[players.size()][5];
         int i = 0;
         String[] columnNames = {"Player Name", "Position", "Points", "Assists", "Rebounds"};
-        for(Player player : players) {
-            data[i] =  new Object[]{player.getName(), player.getPos(), player.getPts(), player.getAst(), player.getReb()};
+        for (Player player : players) {
+            data[i] = new Object[]{player.getName(), player.getPos(), player.getPts(), player.getAst(), player.getReb()};
             i++;
         }
         tableModel.setDataVector(data, columnNames);
     }
 
     private void createClubsTable() {
-        
+
         List<Club> clubs = datasource.clubsList();
         Object[][] data = new Object[clubs.size()][3];
         int i = 0;
         String[] columnNames = {"City Name", "Club Name", "Division"};
-        for(Club club : clubs) {
-            data[i] =  new Object[]{club.getCityName(), club.getClubName(), club.getDivision()};
+        for (Club club : clubs) {
+            data[i] = new Object[]{club.getCityName(), club.getClubName(), club.getDivision()};
             i++;
         }
         tableModel.setDataVector(data, columnNames);
@@ -231,8 +244,8 @@ public class MainApplication extends JFrame implements ActionListener {
         Object[][] data = new Object[views.size()][6];
         int i = 0;
         String[] columnNames = {"ID", "Player Name", "Club Name", "Points", "Assists", "Rebounds"};
-        for(View view : views) {
-            data[i] =  new Object[]{view.getId(), view.getPlayerName(), view.getClub(), view.getPts(), view.getAst(), view.getReb()};
+        for (View view : views) {
+            data[i] = new Object[]{view.getId(), view.getPlayerName(), view.getClub(), view.getPts(), view.getAst(), view.getReb()};
             i++;
         }
         tableModel.setDataVector(data, columnNames);

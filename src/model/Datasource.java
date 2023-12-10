@@ -16,6 +16,14 @@ public class Datasource {
     public static final String UPDATE_STATS = "UPDATE stats SET points = %s, assists = %s, rebounds = %s WHERE player_id = %d;";
     public static final String CLUB_LIST = "SELECT city_name AS 'City', club_name AS 'Club', division AS 'Division' FROM clubs;";
 
+    private static final String PLAYER_TO_UPDATE = "SELECT p.first_name AS 'Name', p.last_name AS 'Surname', p.position AS 'Position', c.city_name || ' ' || c.club_name AS 'Club', s.points AS 'Points', s.assists AS 'Assists', s.rebounds AS 'Rebounds'\n" +
+            "FROM players AS p\n" +
+            "INNER JOIN stats AS s\n" +
+            "ON p.player_id = s.player_id\n" +
+            "INNER JOIN clubs AS c\n" +
+            "ON c.club_id = p.club_id\n" +
+            "WHERE p.player_id = %d;";
+
     public static final String ClUB_PLAYERS = """
             SELECT p.first_name || ' ' || p.last_name AS 'Player',p.position AS 'Position', s.points AS 'Points', s.assists AS 'Assists', s.rebounds AS 'Rebounds'
             FROM players AS p
@@ -149,6 +157,25 @@ public class Datasource {
                 players.add(player);
             }
             return players;
+
+        } catch(SQLException e) {
+            System.out.println("Query failed: " + e.getMessage());
+            return null;
+        }
+    }
+    public PlayerToUpdate playerUpdate(int idOfPlayer) {
+        String command = String.format(PLAYER_TO_UPDATE, idOfPlayer);
+        try(Statement statement = conn.createStatement();
+            ResultSet results = statement.executeQuery(command)) {
+            PlayerToUpdate player = new PlayerToUpdate();
+            player.setFirstName(results.getString(1));
+            player.setLastName(results.getString(2));
+            player.setPos(results.getString(3));
+            player.setClub(results.getString(4));
+            player.setPts(results.getDouble(5));
+            player.setAst(results.getDouble(6));
+            player.setReb(results.getDouble(7));
+            return player;
 
         } catch(SQLException e) {
             System.out.println("Query failed: " + e.getMessage());

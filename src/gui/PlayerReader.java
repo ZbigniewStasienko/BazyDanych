@@ -2,14 +2,12 @@ package gui;
 
 import model.Club;
 import model.Datasource;
-import model.Player;
+import model.PlayerToUpdate;
 
 import javax.swing.*;
-import javax.xml.crypto.Data;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 import java.util.List;
 
 public class PlayerReader extends JFrame {
@@ -20,18 +18,22 @@ public class PlayerReader extends JFrame {
     private JTextField double1Field;
     private JTextField double2Field;
     private JTextField double3Field;
+    private int idOfUpdatedPlayer;
     private List<Club> clubList;
+    private PlayerToUpdate player;
     private Datasource datasource;
-    public PlayerReader(Datasource datasource) {
+    public PlayerReader(Datasource datasource, PlayerToUpdate player, int idOfUpdatedPlayer) {
+        this.player = player;
+        this.idOfUpdatedPlayer = idOfUpdatedPlayer;
         setTitle("Player Reader");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(400, 250);
         this.clubList = datasource.clubsList();
         this.datasource = datasource;
-        initComponents();
+        initComponents(player);
     }
 
-    private void initComponents() {
+    private void initComponents(PlayerToUpdate player) {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(8, 2, 10, 10));
 
@@ -74,14 +76,46 @@ public class PlayerReader extends JFrame {
         });
 
 
+        if(player != null){
+            string1Field.setText(player.getFirstName());
+            string1Field.setEditable(false);
+            string2Field.setText(player.getLastName());
+            string2Field.setEditable(false);
+            clubComboBox.setSelectedItem(player.getClub());
+            clubComboBox.setEditable(false);
+            positionComboBox.setSelectedItem(player.getPos());
+            positionComboBox.setEditable(false);
+            double1Field.setText(String.valueOf(player.getPts()));
+            double2Field.setText(String.valueOf(player.getAst()));
+            double3Field.setText(String.valueOf(player.getReb()));
+        }
+
         panel.add(string1Label);
         panel.add(string1Field);
         panel.add(string2Label);
         panel.add(string2Field);
         panel.add(positionLabel);
-        panel.add(positionComboBox);
+
+        if(player == null){
+            panel.add(positionComboBox);
+        } else {
+            JTextField positionField = new JTextField();
+            positionField.setText(player.getPos());
+            positionField.setEditable(false);
+            panel.add(positionField);
+        }
+
         panel.add(clubLabel);
-        panel.add(clubComboBox);
+
+        if(player == null){
+            panel.add(clubComboBox);
+        } else {
+            JTextField clubField = new JTextField();
+            clubField.setText(player.getClub());
+            clubField.setEditable(false);
+            panel.add(clubField);
+        }
+
         panel.add(double1Label);
         panel.add(double1Field);
         panel.add(double2Label);
@@ -96,8 +130,13 @@ public class PlayerReader extends JFrame {
 
     private void onSubmit() {
         try {
-            datasource.addPlayer(string1Field.getText(), string2Field.getText(), positionComboBox.getSelectedItem().toString(), clubComboBox.getSelectedIndex() + 1);
-            datasource.addStats(double1Field.getText(), double2Field.getText(), double3Field.getText());
+            if(player == null){
+                datasource.addPlayer(string1Field.getText(), string2Field.getText(), positionComboBox.getSelectedItem().toString(), clubComboBox.getSelectedIndex() + 1);
+                datasource.addStats(double1Field.getText(), double2Field.getText(), double3Field.getText());
+            } else {
+                datasource.updateStats(double1Field.getText(), double2Field.getText(), double3Field.getText(), idOfUpdatedPlayer);
+            }
+
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Please enter valid numeric values.", "Error", JOptionPane.ERROR_MESSAGE);
         }

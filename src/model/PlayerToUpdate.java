@@ -1,7 +1,6 @@
 package model;
 
 public class PlayerToUpdate {
-
     private String firstName;
     private String lastName;
     private String club;

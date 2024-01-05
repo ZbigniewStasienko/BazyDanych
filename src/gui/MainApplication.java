@@ -2,7 +2,6 @@ package gui;
 
 import model.*;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -26,7 +25,7 @@ public class MainApplication extends JFrame implements ActionListener {
     JButton openPlayerReaderButton = new JButton("Add Player");
     JButton openPlayerUpdateButton = new JButton("Update Player");
     JButton showRoster = new JButton("Show Roster");
-    JButton refreshButton = new JButton();
+    public static JButton refreshButton = new JButton("Refresh");
     JButton closeButton = new JButton("Close");
 
 
@@ -56,14 +55,12 @@ public class MainApplication extends JFrame implements ActionListener {
         menuViews.add(menuRebounds);
         menuViews.add(menuClubsList);
 
-        try {
-            Image img = ImageIO.read(getClass().getResource("../image/refresh.png"));
-            Image newimage = img.getScaledInstance(24, 22, DO_NOTHING_ON_CLOSE);
-            refreshButton.setIcon(new ImageIcon(newimage));
-
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        refreshButton.setFocusPainted(false);
+        deleteButton.setFocusPainted(false);
+        openPlayerReaderButton.setFocusPainted(false);
+        openPlayerUpdateButton.setFocusPainted(false);
+        showRoster.setFocusPainted(false);
+        closeButton.setFocusPainted(false);
 
         deleteButton.addActionListener(this);
         refreshButton.addActionListener(this);
@@ -117,8 +114,14 @@ public class MainApplication extends JFrame implements ActionListener {
                 } else {
                     List<View> currentView = datasource.queryView(refresh);
                     View playerToDel = currentView.get(index);
-                    datasource.deleteStats(playerToDel.getId());
-                    datasource.deletePlayer(playerToDel.getId());
+                    int dialogButton = JOptionPane.YES_NO_OPTION;
+                    int dialogResult = JOptionPane.showConfirmDialog (null, "Would You Like to delete: " + playerToDel.getPlayerName() + "?","Warning",dialogButton);
+                    if(dialogResult == JOptionPane.YES_OPTION){
+                        datasource.deleteStats(playerToDel.getId());
+                        datasource.deletePlayer(playerToDel.getId());
+                        JOptionPane.showMessageDialog(this, playerToDel.getPlayerName() + " is deleted from database \n Refresh view", "Confirmation", JOptionPane.INFORMATION_MESSAGE);
+                        refreshButton.setBackground(Color.decode("#65B741"));
+                    }
                 }
             }
 
@@ -135,6 +138,7 @@ public class MainApplication extends JFrame implements ActionListener {
                         viewPlayers("rebounds_view");
                     }
                 }
+                refreshButton.setBackground(null);
             }
 
             if (source == openPlayerReaderButton) {

@@ -1,7 +1,0 @@
--przycisk refresh #Zrobione
--usuwanie kliknietego zawodnika #Done
--edytowanie kliknietego zawodnika
--wyswietlic liste klubow #Done
--klikniecie na liste klubow pokazuje zawdonikow klubu #Done
--wylaczyc okienko po wybraniu "submit"  #Zrobione
--dodac pole playerId w obiektach Javy #Done

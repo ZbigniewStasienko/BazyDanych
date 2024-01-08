@@ -1,5 +1,0 @@
--dodawanie tego samego zawodnika (imie, nazwisko, id klubu) zabronione
--dodawanie punktow i zawodnika w jednej transakcji
--pobieranie daynch z GUI
--dodanie validacji
--

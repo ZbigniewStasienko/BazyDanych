@@ -131,9 +131,10 @@ public class PlayerReader extends JFrame {
     private void onSubmit() {
         try {
             if(player == null){
-                datasource.addPlayer(string1Field.getText(), string2Field.getText(), positionComboBox.getSelectedItem().toString(), clubComboBox.getSelectedIndex() + 1);
-                datasource.addStats(double1Field.getText(), double2Field.getText(), double3Field.getText());
-                MainApplication.refreshButton.setBackground(Color.decode("#65B741"));
+                boolean res = datasource.addingTransaction(string1Field.getText(), string2Field.getText(), positionComboBox.getSelectedItem().toString(), clubComboBox.getSelectedIndex() + 1, double1Field.getText(), double2Field.getText(), double3Field.getText());
+                if(res) {
+                    MainApplication.refreshButton.setBackground(Color.decode("#65B741"));
+                }
             } else {
                 datasource.updateStats(double1Field.getText(), double2Field.getText(), double3Field.getText(), idOfUpdatedPlayer);
                 MainApplication.refreshButton.setBackground(Color.decode("#65B741"));

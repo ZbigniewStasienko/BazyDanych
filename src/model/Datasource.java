@@ -1,10 +1,13 @@
 package model;
 
+import javax.swing.*;
+import java.awt.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class Datasource {
+public class Datasource extends Component {
     public static final String DB_NAME = "database.db";
     // public static final String CONNECTION_STRING = "jdbc:sqlite:C:\\Users\\zbysz\\Documents\\Studia\\Semestr V\\BD\\repo\\BazyDanych\\" + DB_NAME;
     public static final String CONNECTION_STRING = "jdbc:sqlite:C:..\\BazyDanych\\" + DB_NAME;
@@ -41,7 +44,7 @@ public class Datasource {
             conn = DriverManager.getConnection(CONNECTION_STRING);
             return true;
         } catch(SQLException e) {
-            System.out.println("Couldn't connect to database: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }
@@ -53,7 +56,7 @@ public class Datasource {
             }
 
         } catch(SQLException e) {
-            System.out.println("Couldn't close connection: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }
     public List<View> queryView(String viewName) {
@@ -75,7 +78,7 @@ public class Datasource {
             return viewElements;
 
         } catch(SQLException e) {
-            System.out.println("Query failed: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
             return null;
         }
 
@@ -96,33 +99,67 @@ public class Datasource {
             return clubs;
 
         } catch(SQLException e) {
-            System.out.println("Query failed: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }
 
-    public void addPlayer(String name, String surname, String pos, int club_id) {
+    public boolean addingTransaction(String name, String surname, String pos, int club_id, String pts, String ast, String reb) {
+        boolean result = false;
+        try {
+            int affectedRows = addPlayer(name, surname, pos, club_id);
+            if(affectedRows == 1) {
+                int statsRow = addStats(pts, ast, reb);
+                if(statsRow == 1){
+                    result = true;
+                } else {
+                    List<View> view = queryView("points_view");
+                    int id = view.size();
+                    deletePlayer(id+1);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Adding player failed!", "ERROR", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch(Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+        return result;
+    }
+
+    public int addPlayer(String name, String surname, String pos, int club_id) {
         String command = String.format(ADD_PLAYER, name, surname, pos, club_id);
-        try(Statement statement = conn.createStatement()) {
-            statement.executeUpdate(command);
-        } catch(SQLException e) {
-            System.out.println("Query failed: " + e.getMessage());
+        try (Statement statement = conn.createStatement()) {
+            int affectedRows = statement.executeUpdate(command);
+            return affectedRows;
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            return -1;
         }
     }
-    public void addStats(String pts, String ast, String reb) {
-        String command = String.format(ADD_STATS, pts,ast, reb);
-        try(Statement statement = conn.createStatement()) {
-            statement.executeUpdate(command);
-        } catch(SQLException e) {
-            System.out.println("Query failed: " + e.getMessage());
+
+    public int addStats(String pts, String ast, String reb) {
+        String[] checkedData = checkData(pts, ast, reb);
+        if(Objects.equals(checkedData[0], "t")){
+            String command = String.format(ADD_STATS, checkedData[1],checkedData[2], checkedData[3]);
+            try (Statement statement = conn.createStatement()) {
+                int affectedRows = statement.executeUpdate(command);
+                return affectedRows;
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+                return -1;
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Adding stats failed!", "ERROR", JOptionPane.ERROR_MESSAGE);
         }
+        return -1;
     }
     public void deletePlayer(int idPlayer) {
         String command = String.format(DELETE_PLAYER, idPlayer);
         try(Statement statement = conn.createStatement()) {
             statement.executeUpdate(command);
         } catch(SQLException e) {
-            System.out.println("Query failed: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }
     public void deleteStats(int idPlayer) {
@@ -130,7 +167,7 @@ public class Datasource {
         try(Statement statement = conn.createStatement()) {
             statement.executeUpdate(command);
         } catch(SQLException e) {
-            System.out.println("Query failed: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }
     public void updateStats(String pts, String ast, String reb, int idPlayer) {
@@ -138,7 +175,7 @@ public class Datasource {
         try(Statement statement = conn.createStatement()) {
             statement.executeUpdate(command);
         } catch(SQLException e) {
-            System.out.println("Query failed: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }
     public List<Player> clubPlayerList(String clubName) {
@@ -159,7 +196,7 @@ public class Datasource {
             return players;
 
         } catch(SQLException e) {
-            System.out.println("Query failed: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }
@@ -178,8 +215,27 @@ public class Datasource {
             return player;
 
         } catch(SQLException e) {
-            System.out.println("Query failed: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
             return null;
         }
+    }
+    public String[] checkData(String pts, String ast, String reb){
+        String[] output = new String[4];
+        output[0] = "f";
+        pts = pts.replace(',', '.');
+        ast = ast.replace(',', '.');
+        reb = reb.replace(',', '.');
+        try {
+            Double.parseDouble(pts);
+            Double.parseDouble(ast);
+            Double.parseDouble(reb);
+            output[0] = "t";
+            output[1] = pts;
+            output[2] = ast;
+            output[3] = reb;
+        } catch (NumberFormatException e) {
+            output[0] = "f";
+        }
+        return output;
     }
 }

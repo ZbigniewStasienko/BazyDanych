@@ -170,13 +170,21 @@ public class Datasource extends Component {
             JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }
-    public void updateStats(String pts, String ast, String reb, int idPlayer) {
-        String command = String.format(UPDATE_STATS, pts, ast, reb, idPlayer);
-        try(Statement statement = conn.createStatement()) {
-            statement.executeUpdate(command);
-        } catch(SQLException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+    public int updateStats(String pts, String ast, String reb, int idPlayer) {
+        String[] checkedData = checkData(pts, ast, reb);
+        if(Objects.equals(checkedData[0], "t")){
+            String command = String.format(UPDATE_STATS, checkedData[1],checkedData[2], checkedData[3], idPlayer);
+            try (Statement statement = conn.createStatement()) {
+                int affectedRows = statement.executeUpdate(command);
+                return affectedRows;
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+                return -1;
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Adding stats failed!", "ERROR", JOptionPane.ERROR_MESSAGE);
         }
+        return -1;
     }
     public List<Player> clubPlayerList(String clubName) {
         String command = String.format(ClUB_PLAYERS, clubName);

@@ -136,8 +136,10 @@ public class PlayerReader extends JFrame {
                     MainApplication.refreshButton.setBackground(Color.decode("#65B741"));
                 }
             } else {
-                datasource.updateStats(double1Field.getText(), double2Field.getText(), double3Field.getText(), idOfUpdatedPlayer);
-                MainApplication.refreshButton.setBackground(Color.decode("#65B741"));
+                int res = datasource.updateStats(double1Field.getText(), double2Field.getText(), double3Field.getText(), idOfUpdatedPlayer);
+                if(res == 1){
+                    MainApplication.refreshButton.setBackground(Color.decode("#65B741"));
+                }
             }
 
         } catch (NumberFormatException ex) {

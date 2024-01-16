@@ -2,6 +2,8 @@ package model;
 
 import junit.framework.TestCase;
 
+import java.util.List;
+
 public class DatasourceTest extends TestCase {
 
     Datasource datasource = new Datasource();
@@ -12,6 +14,16 @@ public class DatasourceTest extends TestCase {
         boolean result = datasource.addingTransaction("Tyler", "Johnson", "PG", 1, "43,1", "1", "1");
         assertTrue(result);
         }
+
+    // Przecinek w statystykach
+    public void testTransaction1() {
+        datasource.open();
+        List<View> viewPrev = datasource.queryView("points_view");
+        datasource.addingTransaction("Tyler", "Johnson", "PG", 1, "43,1", "-1", "1");
+        List<View> newView = datasource.queryView("points_view");
+        assertEquals(viewPrev.size(), newView.size());
+    }
+
     // Jedna niepoprawna(ujemna) wartość w statystykach
     public void testAddingTransaction2() {
         datasource.open();
@@ -22,7 +34,7 @@ public class DatasourceTest extends TestCase {
     // Jedna niepoprawna (litera) wartość w statystykach
     public void testAddingTransaction3() {
         datasource.open();
-        boolean result = datasource.addingTransaction("Tyler", "Knocks", "SG", 7, "43,1a", "1", "1");
+        boolean result = datasource.addingTransaction("Tyler", "Knocks", "SG", 7, "43,1", "1a", "1");
         assertFalse(result);
     }
 

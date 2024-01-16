@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 public class MainApplication extends JFrame implements ActionListener {
+    private String globalLogin = "admin";
+    private String globalPassword = "admin";
     private DefaultTableModel tableModel;
     private JTable table;
     private Datasource datasource;
@@ -31,11 +33,27 @@ public class MainApplication extends JFrame implements ActionListener {
 
     public MainApplication() {
 
+        boolean cond = true;
+        while (cond) {
+            String login = JOptionPane.showInputDialog(this, "Enter login:", null);
+            if (login != null && login.equals(globalLogin)) {
+                String password = JOptionPane.showInputDialog(this, "Enter password:", null);
+                if (password != null && password.equals(globalPassword)) {
+                    cond = false;
+                }else {
+                    JOptionPane.showMessageDialog(this, "Invalid password!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Invalid login!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
         datasource = new Datasource();
         if (!datasource.open()) {
             JOptionPane.showMessageDialog(this, "Could not open connection with database", "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
+
         setTitle("Main Application");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 400);

@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+
+// Class that implements connection with database and
+// SQL commands used to interact with database
 public class Datasource extends Component {
     public static final String DB_NAME = "database.db";
     public static final String CONNECTION_STRING = "jdbc:sqlite:C:..\\BazyDanych\\" + DB_NAME;
@@ -47,13 +50,13 @@ public class Datasource extends Component {
             return false;
         }
     }
-
     public void close() {
         try {
             if(conn != null) {
                 conn.close();
+                JOptionPane.showMessageDialog(this, "Connection is closed!", "Information", JOptionPane.INFORMATION_MESSAGE);
+                System.exit(0);
             }
-
         } catch(SQLException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
@@ -226,6 +229,8 @@ public class Datasource extends Component {
             return null;
         }
     }
+
+    // Checking if provided data is correct
     public String[] checkData(String pts, String ast, String reb){
         String[] output = new String[4];
         output[0] = "f";

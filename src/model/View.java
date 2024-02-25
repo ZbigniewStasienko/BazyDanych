@@ -1,4 +1,5 @@
 package model;
+// Class that maps data from database
 
 public class View {
     private String playerName;

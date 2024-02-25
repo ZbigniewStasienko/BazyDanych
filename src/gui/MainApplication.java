@@ -7,11 +7,11 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 
 public class MainApplication extends JFrame implements ActionListener {
-    private String globalLogin = "admin";
-    private String globalPassword = "admin";
     private DefaultTableModel tableModel;
     private JTable table;
     private Datasource datasource;
@@ -30,37 +30,34 @@ public class MainApplication extends JFrame implements ActionListener {
     public static JButton refreshButton = new JButton("Refresh");
     JButton closeButton = new JButton("Close");
 
-
+    //Constructor of the class initializes connection with database,
+    //handles closing and initialize components of GUI window
     public MainApplication() {
 
-        boolean cond = true;
-        while (cond) {
-            String login = JOptionPane.showInputDialog(this, "Enter login:", null);
-            if (login != null && login.equals(globalLogin)) {
-                String password = JOptionPane.showInputDialog(this, "Enter password:", null);
-                if (password != null && password.equals(globalPassword)) {
-                    cond = false;
-                }else {
-                    JOptionPane.showMessageDialog(this, "Invalid password!", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Invalid login!", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-
         datasource = new Datasource();
+        // Exiting the program due to failure to open the database connection
         if (!datasource.open()) {
             JOptionPane.showMessageDialog(this, "Could not open connection with database", "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
 
         setTitle("Main Application");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Closing database connection when window is closed
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                datasource.close();
+            }
+        });
+
         setSize(800, 400);
 
+        // Initializing GUI components
         initComponents();
     }
 
+    // Method to initialize GUI components
     private void initComponents() {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
@@ -114,10 +111,13 @@ public class MainApplication extends JFrame implements ActionListener {
 
         add(panel);
 
+        // Default view - players sorted by points
         viewPlayers("points_view");
         refresh = "points_view";
     }
 
+
+    // Handling button events
     @Override
     public void actionPerformed(ActionEvent event) {
         Object source = event.getSource();
@@ -148,11 +148,11 @@ public class MainApplication extends JFrame implements ActionListener {
                     return;
                 }
                 if (refresh != null) {
-                    if (refresh == "points_view") {
+                    if (refresh.equals("points_view")) {
                         viewPlayers("points_view");
-                    } else if (refresh == "assist_view") {
+                    } else if (refresh.equals("assist_view")) {
                         viewPlayers("assist_view");
-                    } else if (refresh == "rebounds_view") {
+                    } else if (refresh.equals("rebounds_view")) {
                         viewPlayers("rebounds_view");
                     }
                 }
@@ -218,24 +218,23 @@ public class MainApplication extends JFrame implements ActionListener {
             }
 
             if (source == closeButton) {
-                System.exit(0);
+                datasource.close();
             }
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    // Method to open PlayerReader window
     private void openPlayerReaderWindow(PlayerToUpdate player, int idPlayer) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                PlayerReader playerReader = new PlayerReader(datasource, player, idPlayer);
-                playerReader.setVisible(true);
-            }
+        SwingUtilities.invokeLater(() -> {
+            PlayerReader playerReader = new PlayerReader(datasource, player, idPlayer);
+            playerReader.setVisible(true);
         });
     }
 
+    // Method to view players from a specific club
     private void viewPlayersFromClub(String clubName) {
         List<Player> players = datasource.clubPlayerList(clubName);
         Object[][] data = new Object[players.size()][5];
@@ -248,6 +247,7 @@ public class MainApplication extends JFrame implements ActionListener {
         tableModel.setDataVector(data, columnNames);
     }
 
+    // Method to create table showing list of clubs
     private void createClubsTable() {
 
         List<Club> clubs = datasource.clubsList();
@@ -261,6 +261,7 @@ public class MainApplication extends JFrame implements ActionListener {
         tableModel.setDataVector(data, columnNames);
     }
 
+    // Method to view players based on what parameter user want to sort data by
     private void viewPlayers(String viewName) {
         List<View> views = datasource.queryView(viewName);
         Object[][] data = new Object[views.size()][6];
@@ -273,13 +274,9 @@ public class MainApplication extends JFrame implements ActionListener {
         tableModel.setDataVector(data, columnNames);
     }
 
+    // Main method to start the application
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new MainApplication().setVisible(true);
-            }
-        });
+        SwingUtilities.invokeLater(() -> new MainApplication().setVisible(true));
     }
 }
 

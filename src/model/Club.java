@@ -1,5 +1,6 @@
 package model;
 
+// Class that maps data from database
 public class Club {
     private String cityName;
     private String clubName;

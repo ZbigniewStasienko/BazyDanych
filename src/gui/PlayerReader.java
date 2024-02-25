@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+// PlayerReader class, which implements GUI window used for adding/updating player
 public class PlayerReader extends JFrame {
     private JComboBox<String> clubComboBox;
     private JComboBox<String> positionComboBox;
@@ -30,6 +31,7 @@ public class PlayerReader extends JFrame {
         setSize(400, 250);
         this.clubList = datasource.clubsList();
         this.datasource = datasource;
+        // Initializing components depending on PlayerToUpdate object
         initComponents(player);
     }
 
@@ -75,7 +77,7 @@ public class PlayerReader extends JFrame {
             }
         });
 
-
+        // User wants to update player - some fields are locked
         if(player != null){
             string1Field.setText(player.getFirstName());
             string1Field.setEditable(false);
@@ -96,6 +98,7 @@ public class PlayerReader extends JFrame {
         panel.add(string2Field);
         panel.add(positionLabel);
 
+        // User wants to add player to database
         if(player == null){
             panel.add(positionComboBox);
         } else {

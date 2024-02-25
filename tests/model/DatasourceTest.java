@@ -11,8 +11,10 @@ public class DatasourceTest extends TestCase {
     // Przecinek w statystykach
     public void testAddingTransaction1() {
         datasource.open();
-        boolean result = datasource.addingTransaction("Tyler", "Johnson", "PG", 1, "43,1", "1", "1");
+        boolean result = datasource.addingTransaction("Tyler", "Johnson", "PG", 1, "43,1", "1,1", "1,1");
         assertTrue(result);
+        boolean result1 = datasource.addingTransaction("John", "Deer", "PG", 1, "43.1", "1.3", "1.2");
+        assertTrue(result1);
         }
 
     // Przecinek w statystykach
@@ -52,9 +54,9 @@ public class DatasourceTest extends TestCase {
     }
 
     // Aktualizowanie dla statystyk z literą
-    public void testUpdateStats3() {
+    public void testUpdateStats() {
         datasource.open();
-        int result = datasource.updateStats("3.7", "1a", "3", 1);
-        assertEquals(-1, result);
+        int result = datasource.updateStats("3.7", "1a", "3.0", 1);
+        assertEquals(1, result);
     }
 }

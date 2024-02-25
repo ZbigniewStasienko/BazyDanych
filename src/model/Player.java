@@ -1,5 +1,6 @@
 package model;
 
+// Class that maps data from database
 public class Player {
     private String name;
     private String pos;

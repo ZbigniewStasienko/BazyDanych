@@ -1,4 +1,5 @@
 package model;
+// Class that maps data from database
 
 public class PlayerToUpdate {
     private String firstName;

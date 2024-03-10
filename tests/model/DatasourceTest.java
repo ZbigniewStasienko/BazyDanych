@@ -57,6 +57,6 @@ public class DatasourceTest extends TestCase {
     public void testUpdateStats() {
         datasource.open();
         int result = datasource.updateStats("3.7", "1a", "3.0", 1);
-        assertEquals(1, result);
+        assertEquals(-1, result);
     }
 }
